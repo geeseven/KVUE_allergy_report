@@ -48,7 +48,7 @@ table = Table(
     border_style="dim green",
     box=box.SIMPLE_HEAD,
     header_style="white",
-    title="KVUE allergy report for {}".format(date.strftime("%Y-%m-%d")),
+    title="KVUE allergy report from {}".format(date.strftime("%B %d, %Y")),
 )
 table.add_column("allergen", style="dim")
 table.add_column("severity", style="dim")
