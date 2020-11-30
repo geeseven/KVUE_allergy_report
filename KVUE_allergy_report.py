@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from datetime import date
+from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
 from rich import box
@@ -9,42 +9,46 @@ from rich.table import Table
 from selenium import webdriver
 
 # iframe from https://www.kvue.com/allergy
-url = "https://www.keepandshare.com/calendar/show_month.php?i=1940971"
+base_url = "https://6www.keepandshare.com/calendar/show_month.php?i=1940971&vw=day&date="  # noqa:
 
-logLocation = "/dev/null"
-# For debugging
-# logLocation = "./geckodriver.log"
-opts = webdriver.FirefoxOptions()
-opts.headless = True
-brower = webdriver.Firefox(options=opts, service_log_path=logLocation)
 
-brower.get(url)
-soup = BeautifulSoup(brower.page_source, "html.parser")
-brower.close()
+def screenscrap(url):
+    logLocation = "/dev/null"
+    # For debugging
+    # logLocation = "./geckodriver.log"
+    opts = webdriver.FirefoxOptions()
+    opts.headless = True
+    browser = webdriver.Firefox(options=opts, service_log_path=logLocation)
+    browser.get(url)
+    soup = BeautifulSoup(browser.page_source, "html.parser")
+    browser.close()
+    return soup
 
-# the background color for today is a different color than all other days
-allergyReport = soup.find("span", {"style": "background-color: #ffffff;"})
 
-# KVUE has allergy reports almost everyday
-# maybe figure out how to get the most recent report instead of just today
-if not allergyReport:
-    print(
-        "KVUE does not have an allergy report today."
-        "For recent reports, check {}".format(url)
-    )
-    exit()
+date = datetime.now()
 
-# sometime the allery report ends with a ".", lets remove it & spilt the report
-if allergyReport.text[-1] == ".":
-    allergies = allergyReport.text[0:-1].split(", ")
-else:
-    allergies = allergyReport.text.split(", ")
+# starting with today, check if there is a report, if not find the most recent
+count = 1
+while True:
+    if count == 5:
+        print("ERROR, can't connect or get a report after 5 tries")
+        exit(1)
+    html = screenscrap(base_url + date.strftime("%Y-%m-%d"))
+    allergyReport = html.find("div", {"class": "calendar_one_line_text"})
+    if not allergyReport:
+        date = date - timedelta(days=1)
+        count += 1
+    else:
+        break
+
+# sometime the report ends with a ".", lets remove it & spilt the report
+allergies = allergyReport.text.strip(".").split(", ")
 
 table = Table(
     border_style="dim green",
     box=box.SIMPLE_HEAD,
     header_style="white",
-    title="KVUE allergy report for {}".format(date.today()),
+    title="KVUE allergy report for {}".format(date.strftime("%Y-%m-%d")),
 )
 table.add_column("allergen", style="dim")
 table.add_column("severity", style="dim")
