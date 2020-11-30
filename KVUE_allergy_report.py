@@ -3,6 +3,7 @@
 from datetime import date
 
 from bs4 import BeautifulSoup
+from rich import box
 from rich.console import Console
 from rich.table import Table
 from selenium import webdriver
@@ -39,9 +40,14 @@ if allergyReport.text[-1] == ".":
 else:
     allergies = allergyReport.text.split(", ")
 
-table = Table(title="KVUE allergy report for {}".format(date.today()))
-table.add_column("allergen")
-table.add_column("severity")
+table = Table(
+    border_style="dim green",
+    box=box.SIMPLE_HEAD,
+    header_style="white",
+    title="KVUE allergy report for {}".format(date.today()),
+)
+table.add_column("allergen", style="dim")
+table.add_column("severity", style="dim")
 
 for item in sorted(allergies):
     # change formatting from 'Trees 13 gr/m3 Low' to ['Trees', '13 gr/m3 Low']
