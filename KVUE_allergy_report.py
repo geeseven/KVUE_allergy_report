@@ -9,7 +9,7 @@ from rich.table import Table
 from selenium import webdriver
 
 # iframe from https://www.kvue.com/allergy
-base_url = "https://6www.keepandshare.com/calendar/show_month.php?i=1940971&vw=day&date="  # noqa:
+base_url = "https://www.keepandshare.com/calendar/show_month.php?i=1940971&vw=day&date="  # noqa:
 
 
 def screenscrap(url):
