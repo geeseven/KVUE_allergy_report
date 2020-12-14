@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from datetime import datetime, timedelta
+from re import split
 
 from bs4 import BeautifulSoup
 from rich import box
@@ -42,7 +43,8 @@ while True:
         break
 
 # sometime the report ends with a ".", lets remove it & spilt the report
-allergies = allergyReport.text.strip(".").split(", ")
+allergies = allergyReport.text.strip(".")
+allergies = split(", |; ", allergies)
 
 table = Table(
     border_style="dim green",
