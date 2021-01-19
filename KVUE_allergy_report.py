@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 from re import split
+from unicodedata import normalize
 
 from bs4 import BeautifulSoup
 from rich import box
@@ -42,9 +43,13 @@ while True:
     else:
         break
 
-# sometime the report ends with a ".", lets remove it & spilt the report
+# clean up results
+# sometime the report ends with a ".", lets remove it
 allergies = allergyReport.text.strip(".")
-allergies = split(", |; ", allergies)
+# fix encoding like \xa0 https://stackoverflow.com/a/34669482
+allergies = normalize("NFKD", allergies)
+# spilt for each allergen and remove leading spaces
+allergies = [x.lstrip() for x in split(", |; ", allergies)]
 
 table = Table(
     border_style="dim green",
